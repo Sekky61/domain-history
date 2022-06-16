@@ -49,11 +49,11 @@ async function get_and_set_history(hostname) {
     apply_history(history_res);
 }
 
-function tab_changed(activeInfo) {
+function tab_changed(tab_id) {
     chrome.contextMenus.removeAll();
     create_parent_context_menu();
 
-    let tab_id = activeInfo.tabId;
+    console.log("Run with " + tab_id)
     chrome.tabs.get(
         tab_id,
         async tab => {
@@ -66,4 +66,14 @@ function tab_changed(activeInfo) {
         });
 }
 
-chrome.tabs.onActivated.addListener(tab_changed);
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    let tab_id = activeInfo.tabId;
+    tab_changed(tab_id);
+});
+
+chrome.tabs.onUpdated.addListener((tab_id, change_info) => {
+    console.dir(change_info)
+    if ('url' in change_info) {
+        tab_changed(tab_id);
+    }
+});
